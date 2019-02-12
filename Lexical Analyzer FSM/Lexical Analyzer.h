@@ -56,6 +56,9 @@ private:
 	bool isDigit(char currChar);
 	bool isReal(char currChar);
 	bool isAlpha(char currChar);
+	bool isOperator(char currChar);
+	bool isKeyword(char currChar);
+	bool isSeparator(char currChar);
 public:
 	vector<Token> lexer(string);
 };
@@ -95,9 +98,8 @@ bool FSM::isSpace(char currChar) {
 }
 
 bool FSM::isDigit(char currChar) {
-	if (currChar == '0' || currChar == '1' || currChar == '2' || currChar == '3' ||
-		currChar == '4' || currChar == '5' || currChar == '5' || currChar == '6' ||
-		currChar == '7' || currChar == '8' || currChar == '9')
+				/*	 0 ---------------- 9	*/
+	if (currChar >= '0' && currChar <= '9')
 		return true;
 	return false;
 }
@@ -109,7 +111,15 @@ bool FSM::isReal(char currChar) {
 }
 
 bool FSM::isAlpha(char currChar) {
+				/*	 A -------------- Z						a --------------- z		*/
 	if ((currChar >= 65 && currChar <= 90) || (currChar >= 97 && currChar <= 122))
+		return true;
+	return false;
+}
+
+bool FSM::isOperator(char currChar) {
+	if (currChar == '+' || currChar == '-' || currChar == '*' || currChar == '/' ||
+		currChar == '>' || currChar == '<' || currChar == '=')
 		return true;
 	return false;
 }

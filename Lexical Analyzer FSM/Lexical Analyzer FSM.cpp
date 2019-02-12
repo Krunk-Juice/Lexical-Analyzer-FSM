@@ -17,4 +17,6 @@ int main()
 				tokens[i].getLexeme() << endl;
 		}
 	}
+
+	return 0;
 }
