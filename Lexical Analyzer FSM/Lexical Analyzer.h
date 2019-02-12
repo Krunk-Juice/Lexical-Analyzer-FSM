@@ -57,8 +57,8 @@ private:
 	bool isReal(char currChar);
 	bool isAlpha(char currChar);
 	bool isOperator(char currChar);
-	bool isKeyword(char currChar);
 	bool isSeparator(char currChar);
+	bool isKeyword(char currChar);
 public:
 	vector<Token> lexer(string);
 };
@@ -120,6 +120,13 @@ bool FSM::isAlpha(char currChar) {
 bool FSM::isOperator(char currChar) {
 	if (currChar == '+' || currChar == '-' || currChar == '*' || currChar == '/' ||
 		currChar == '>' || currChar == '<' || currChar == '=')
+		return true;
+	return false;
+}
+
+bool FSM::isSeparator(char currChar) {
+	if (currChar == '(' || currChar == ')' || currChar == '[' || currChar == ']' ||
+		currChar == '{' || currChar == '}')
 		return true;
 	return false;
 }
