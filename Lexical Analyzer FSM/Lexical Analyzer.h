@@ -13,7 +13,8 @@ enum TRANSITION_STATES {
 	OPERATOR = 3,
 	STRING = 4,
 	UNKNOWN = 5,
-	SPACE = 6
+	SPACE = 6,
+	COMMENT = 7
 };
 
 //class StateTable {
@@ -23,14 +24,15 @@ enum TRANSITION_STATES {
 //	TRANSITION_STATES::INTEGER,  } };
 //};
 
-class StateTable {				 /* INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE */
-	int table[7][7] = { {REJECT,	INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE},
-	/* STATE 1 */		{INTEGER,   INTEGER,   REAL,      REJECT,	 REJECT,	REJECT,	   REJECT},
-	/* STATE 2 */		{REAL,      REAL,      UNKNOWN,   REJECT,	 REJECT,	REJECT,    REJECT},
-	/* STATE 3 */		{OPERATOR,  REJECT,	   REJECT,	  REJECT,	 STRING,    REJECT,    REJECT},
-	/* STATE 4 */		{STRING,    STRING,    REJECT,	  STRING,    STRING,    REJECT,    REJECT},
-	/* STATE 5 */		{UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   REJECT},
-	/* STATE 6 */		{SPACE,     REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,    REJECT}
+struct StateTable {				 /* INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT */
+	int table[8][8] = { {REJECT,	INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT},
+	/* STATE 1 */		{INTEGER,   INTEGER,   REAL,      REJECT,	 REJECT,	REJECT,	   REJECT,  COMMENT},
+	/* STATE 2 */		{REAL,      REAL,      UNKNOWN,   REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT},
+	/* STATE 3 */		{OPERATOR,  REJECT,	   REJECT,	  REJECT,	 STRING,    REJECT,    REJECT,  COMMENT},
+	/* STATE 4 */		{STRING,    STRING,    REJECT,	  STRING,    STRING,    REJECT,    REJECT,  COMMENT},
+	/* STATE 5 */		{UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   REJECT,  COMMENT},
+	/* STATE 6 */		{SPACE,     REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT},
+	/* STATE 7 */		{COMMENT,	COMMENT,   COMMENT,	  COMMENT,	 COMMENT,	COMMENT,   COMMENT, REJECT}
 	};
 };
 
@@ -49,16 +51,19 @@ class FSM {
 private:
 	//string token;
 	//int lexeme;
-	//string lexeme;
+	string currToken;
 	Token T;
+	StateTable S;
 	int getCol(char currChar);
+	string getLexName(int lex);
 	bool isSpace(char currChar);
 	bool isDigit(char currChar);
 	bool isReal(char currChar);
 	bool isAlpha(char currChar);
 	bool isOperator(char currChar);
 	bool isSeparator(char currChar);
-	bool isKeyword(char currChar);
+	bool isComment(char currChar);
+	bool isKeyword(string currToken);
 public:
 	vector<Token> lexer(string);
 };
@@ -68,13 +73,29 @@ vector<Token> FSM::lexer(string expression) {
 	char currChar = ' ';
 	int col = REJECT;
 	int currState = REJECT;
-	string currToken = "";
+	int prevState = REJECT;
+	currToken = "";
 
 
 	for (int i = 0; i < expression.length();) {
 		currChar = expression[i];
 
+		col = getCol(currChar);
 
+		currState = S.table[currState][col];
+
+		if (currState == REJECT) {
+			if (prevState != SPACE) {
+				T.setToken(currToken);
+				T.setLexeme(getLexName(prevState));
+				tokens.push_back(T);
+			}
+			currToken = "";
+		}
+		else {
+			currToken += currChar;
+			i++;
+		}
 	}
 
 	return tokens;
@@ -89,6 +110,34 @@ int FSM::getCol(char currChar) {
 
 	else if (isReal(currChar))
 		return REAL;
+}
+
+string FSM::getLexName(int lex) {
+	switch (lex) {
+	case INTEGER:
+		return "INTEGER";
+		break;
+	case REAL:
+		return "REAL";
+		break;
+	case OPERATOR:
+		return "OPERATOR";
+		break;
+	case STRING:
+		if (isKeyword(currToken))
+			return "KEYWORD";
+		return "IDENTIFIER";
+	case SPACE:
+		break;
+	case COMMENT:
+		break;
+	case UNKNOWN:
+		return "UNKNOWN";
+		break;
+	default:
+		return "ERROR";
+		break;
+	}
 }
 
 bool FSM::isSpace(char currChar) {
@@ -120,6 +169,12 @@ bool FSM::isAlpha(char currChar) {
 bool FSM::isOperator(char currChar) {
 	if (currChar == '+' || currChar == '-' || currChar == '*' || currChar == '/' ||
 		currChar == '>' || currChar == '<' || currChar == '=')
+		return true;
+	return false;
+}
+
+bool FSM::isComment(char currChar) {
+	if (currChar == '!')
 		return true;
 	return false;
 }
