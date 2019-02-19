@@ -7,32 +7,29 @@ using namespace std;
 
 // These are the transition states for the FSM.
 enum TRANSITION_STATES {
-	REJECT = 0,
+	REJECT = 0,				// REJECT is the starting state.
 	INTEGER = 1,
 	REAL = 2,
 	OPERATOR = 3,
 	STRING = 4,
 	UNKNOWN = 5,
 	SPACE = 6,
-	COMMENT = 7
+	COMMENT = 7,
+	SEPARATOR = 8,
+	DOLLAR = 9
 };
 
-//class StateTable {
-//private:
-//	int table[7][7] =
-//	{ {TRANSITION_STATES::REJECT, TRANSITION_STATES::INTEGER, TRANSITION_STATES::REAL, TRANSITION_STATES::OPERATOR, TRANSITION_STATES::STRING, TRANSITION_STATES::UNKNOWN, TRANSITION_STATES::SPACE},
-//	TRANSITION_STATES::INTEGER,  } };
-//};
-
-struct StateTable {				 /* INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT */
-	int table[8][8] = { {REJECT,	INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT},
-	/* STATE 1 */		{INTEGER,   INTEGER,   REAL,      REJECT,	 REJECT,	REJECT,	   REJECT,  COMMENT},
-	/* STATE 2 */		{REAL,      REAL,      UNKNOWN,   REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT},
-	/* STATE 3 */		{OPERATOR,  REJECT,	   REJECT,	  REJECT,	 STRING,    REJECT,    REJECT,  COMMENT},
-	/* STATE 4 */		{STRING,    STRING,    REJECT,	  STRING,    STRING,    REJECT,    REJECT,  COMMENT},
-	/* STATE 5 */		{UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   REJECT,  COMMENT},
-	/* STATE 6 */		{SPACE,     REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT},
-	/* STATE 7 */		{COMMENT,	COMMENT,   COMMENT,	  COMMENT,	 COMMENT,	COMMENT,   COMMENT, REJECT}
+struct StateTable {				 /* INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR */
+	int table[10][10] = { {REJECT,	INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR},
+	/* STATE 1 */		{INTEGER,   INTEGER,   REAL,      REJECT,	 REJECT,	REJECT,	   REJECT,  COMMENT,  REJECT, REJECT},
+	/* STATE 2 */		{REAL,      REAL,      UNKNOWN,   REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT,  REJECT, UNKNOWN},
+	/* STATE 3 */		{OPERATOR,  REJECT,	   REJECT,	  REJECT,	 STRING,    REJECT,    REJECT,  COMMENT,  REJECT, REJECT},
+	/* STATE 4 */		{STRING,    STRING,    REJECT,	  REJECT,    STRING,    REJECT,    REJECT,  COMMENT,  REJECT, STRING},
+	/* STATE 5 */		{UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   REJECT,  COMMENT,  REJECT, REJECT},
+	/* STATE 6 */		{SPACE,     REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT,  REJECT,	 REJECT},
+	/* STATE 7 */		{COMMENT,	COMMENT,   COMMENT,	  COMMENT,	 COMMENT,	COMMENT,   COMMENT, REJECT,	  COMMENT,	 COMMENT},
+	/* STATE 8 */		{SEPARATOR, REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,	   REJECT,	COMMENT,  REJECT,	 REJECT},
+	/* STATE 9 */		{DOLLAR,	REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,	   REJECT,	COMMENT,  REJECT,	 REJECT}
 	};
 };
 
@@ -63,7 +60,7 @@ private:
 	bool isOperator(char currChar);
 	bool isSeparator(char currChar);
 	bool isComment(char currChar);
-	bool isKeyword(string currToken);
+	bool isKeyword();
 public:
 	vector<Token> lexer(string);
 };
@@ -96,6 +93,13 @@ vector<Token> FSM::lexer(string expression) {
 			currToken += currChar;
 			i++;
 		}
+		prevState = currState;
+	}
+
+	if (currState != SPACE && currToken != "") {
+		T.setToken(currToken);
+		T.setLexeme(getLexName(currState));
+		tokens.push_back(T);
 	}
 
 	return tokens;
@@ -110,6 +114,23 @@ int FSM::getCol(char currChar) {
 
 	else if (isReal(currChar))
 		return REAL;
+
+	else if (isAlpha(currChar))
+		return STRING;
+
+	else if (isOperator(currChar))
+		return OPERATOR;
+
+	else if (isSeparator(currChar))
+		return SEPARATOR;
+
+	else if (isComment(currChar))
+		return COMMENT;
+
+	else if (currChar == '$')
+		return DOLLAR;
+
+	return UNKNOWN;
 }
 
 string FSM::getLexName(int lex) {
@@ -124,10 +145,13 @@ string FSM::getLexName(int lex) {
 		return "OPERATOR";
 		break;
 	case STRING:
-		if (isKeyword(currToken))
+		if (isKeyword())
 			return "KEYWORD";
 		return "IDENTIFIER";
 	case SPACE:
+		break;
+	case SEPARATOR:
+		return "SEPARATOR";
 		break;
 	case COMMENT:
 		break;
@@ -182,6 +206,16 @@ bool FSM::isComment(char currChar) {
 bool FSM::isSeparator(char currChar) {
 	if (currChar == '(' || currChar == ')' || currChar == '[' || currChar == ']' ||
 		currChar == '{' || currChar == '}')
+		return true;
+	return false;
+}
+
+bool FSM::isKeyword() {
+	if (currToken == "int" || currToken == "float" || currToken == "bool" ||
+		currToken == "if" || currToken == "else" || currToken == "then" ||
+		currToken == "for" || currToken == "while" || currToken == "whileend" ||
+		currToken == "do" || currToken == "doend" || currToken == "and" ||
+		currToken == "or" || currToken == "function")
 		return true;
 	return false;
 }

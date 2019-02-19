@@ -4,8 +4,14 @@ int main()
 {
 	ifstream infile;
 	string str;
+	string fileName;
 	FSM T;
 	vector<Token> tokens;
+
+	cout << "Enter file name: ";
+	getline(cin, fileName);
+
+	infile.open(fileName.c_str());
 
 	while (!infile.eof()) {
 		getline(infile, str);
