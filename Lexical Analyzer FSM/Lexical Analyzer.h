@@ -156,6 +156,7 @@ string FSM::getLexName(int lex) {
 		return "SEPARATOR";
 		break;
 	case COMMENT:
+		return "COMMENT";
 		break;
 	case UNKNOWN:
 		return "UNKNOWN";
