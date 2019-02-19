@@ -11,6 +11,11 @@ int main()
 	cout << "Enter file name: ";
 	getline(cin, fileName);
 
+	if (infile.fail()) {
+		cout << "File " << fileName << " cannot be found." << endl;
+		exit;
+	}
+
 	infile.open(fileName.c_str());
 
 	while (!infile.eof()) {

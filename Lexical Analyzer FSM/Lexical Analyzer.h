@@ -82,13 +82,15 @@ vector<Token> FSM::lexer(string expression) {
 		currState = S.table[currState][col];
 
 		if (currState == REJECT) {
-			if (prevState != SPACE) {
+			if (prevState != SPACE && prevState != COMMENT) {
 				T.setToken(currToken);
 				T.setLexeme(getLexName(prevState));
 				tokens.push_back(T);
 			}
 			currToken = "";
 		}
+		else if (currState == COMMENT)
+			i++;
 		else {
 			currToken += currChar;
 			i++;
