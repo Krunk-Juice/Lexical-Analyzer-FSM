@@ -82,15 +82,20 @@ vector<Token> FSM::lexer(string expression) {
 		currState = S.table[currState][col];
 
 		if (currState == REJECT) {
+			// Only add tokens and lexemes that are not SPACE or COMMENT.
 			if (prevState != SPACE && prevState != COMMENT) {
 				T.setToken(currToken);
 				T.setLexeme(getLexName(prevState));
 				tokens.push_back(T);
 			}
+			// If previous state is COMMENT. We move the expression index forward.
+			if (prevState == COMMENT)
+				i++;
 			currToken = "";
 		}
-		else if (currState == COMMENT)
-			i++;
+		// Will skip comments entirely without catching.
+		//else if (currState == COMMENT)
+		//	i++;
 		else {
 			currToken += currChar;
 			i++;
@@ -98,7 +103,7 @@ vector<Token> FSM::lexer(string expression) {
 		prevState = currState;
 	}
 
-	if (currState != SPACE && currToken != "") {
+	if (currState != SPACE && currToken != "" && currState != COMMENT) {
 		T.setToken(currToken);
 		T.setLexeme(getLexName(currState));
 		tokens.push_back(T);
