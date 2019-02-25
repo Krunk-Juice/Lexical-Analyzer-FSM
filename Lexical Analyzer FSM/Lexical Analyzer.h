@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <iomanip>
 #include <fstream>
 
 using namespace std;
@@ -20,16 +21,15 @@ enum TRANSITION_STATES {
 };
 
 struct StateTable {				 /* INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR */
-	int table[10][10] = { {REJECT,	INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR},
-	/* STATE 1 */		{INTEGER,   INTEGER,   REAL,      REJECT,	 REJECT,	REJECT,	   REJECT,  COMMENT,  REJECT, REJECT},
-	/* STATE 2 */		{REAL,      REAL,      UNKNOWN,   REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT,  REJECT, UNKNOWN},
-	/* STATE 3 */		{OPERATOR,  REJECT,	   REJECT,	  REJECT,	 STRING,    REJECT,    REJECT,  COMMENT,  REJECT, REJECT},
-	/* STATE 4 */		{STRING,    STRING,    REJECT,	  REJECT,    STRING,    REJECT,    REJECT,  COMMENT,  REJECT, STRING},
-	/* STATE 5 */		{UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   REJECT,  COMMENT,  REJECT, REJECT},
+	int table[9][10] = { {REJECT,	INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR},
+	/* STATE 1 */		{INTEGER,   INTEGER,   REAL,      REJECT,	 REJECT,	REJECT,	   REJECT,  COMMENT,  REJECT,	 REJECT},
+	/* STATE 2 */		{REAL,      REAL,      UNKNOWN,   REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT,  REJECT,	 REJECT},
+	/* STATE 3 */		{OPERATOR,  REJECT,	   REJECT,	  REJECT,	 STRING,    REJECT,    REJECT,  COMMENT,  REJECT,	 REJECT},
+	/* STATE 4 */		{STRING,    STRING,    REJECT,	  REJECT,    STRING,    REJECT,    REJECT,  COMMENT,  REJECT,	 STRING},
+	/* STATE 5 */		{UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   REJECT,  COMMENT,  REJECT,	 REJECT},
 	/* STATE 6 */		{SPACE,     REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT,  REJECT,	 REJECT},
 	/* STATE 7 */		{COMMENT,	COMMENT,   COMMENT,	  COMMENT,	 COMMENT,	COMMENT,   COMMENT, REJECT,	  COMMENT,	 COMMENT},
-	/* STATE 8 */		{SEPARATOR, REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,	   REJECT,	COMMENT,  REJECT,	 REJECT},
-	/* STATE 9 */		{DOLLAR,	REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,	   REJECT,	COMMENT,  REJECT,	 REJECT}
+	/* STATE 8 */		{SEPARATOR, REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,	   REJECT,	COMMENT,  REJECT,	 REJECT}
 	};
 };
 
@@ -52,7 +52,7 @@ private:
 	Token T;
 	StateTable S;
 	int getCol(char currChar);
-	string getLexName(int lex);
+	string getTokenType(int lex);
 	bool isSpace(char currChar);
 	bool isDigit(char currChar);
 	bool isReal(char currChar);
@@ -84,8 +84,8 @@ vector<Token> FSM::lexer(string expression) {
 		if (currState == REJECT) {
 			// Only add tokens and lexemes that are not SPACE or COMMENT.
 			if (prevState != SPACE && prevState != COMMENT) {
-				T.setToken(currToken);
-				T.setLexeme(getLexName(prevState));
+				T.setLexeme(currToken);
+				T.setToken(getTokenType(prevState));
 				tokens.push_back(T);
 			}
 			// If previous state is COMMENT. We move the expression index forward.
@@ -94,8 +94,8 @@ vector<Token> FSM::lexer(string expression) {
 			currToken = "";
 		}
 		// Will skip comments entirely without catching.
-		//else if (currState == COMMENT)
-		//	i++;
+		else if (currState == COMMENT)
+			i++;
 		else {
 			currToken += currChar;
 			i++;
@@ -104,8 +104,8 @@ vector<Token> FSM::lexer(string expression) {
 	}
 
 	if (currState != SPACE && currToken != "" && currState != COMMENT) {
-		T.setToken(currToken);
-		T.setLexeme(getLexName(currState));
+		T.setLexeme(currToken);
+		T.setToken(getTokenType(currState));
 		tokens.push_back(T);
 	}
 
@@ -140,7 +140,7 @@ int FSM::getCol(char currChar) {
 	return UNKNOWN;
 }
 
-string FSM::getLexName(int lex) {
+string FSM::getTokenType(int lex) {
 	switch (lex) {
 	case INTEGER:
 		return "INTEGER";
@@ -173,7 +173,7 @@ string FSM::getLexName(int lex) {
 }
 
 bool FSM::isSpace(char currChar) {
-	if (currChar == ' ')
+	if (currChar == ' ' || currChar == '	')
 		return true;
 	return false;
 }
@@ -200,7 +200,7 @@ bool FSM::isAlpha(char currChar) {
 
 bool FSM::isOperator(char currChar) {
 	if (currChar == '+' || currChar == '-' || currChar == '*' || currChar == '/' ||
-		currChar == '>' || currChar == '<' || currChar == '=')
+		currChar == '>' || currChar == '<' || currChar == '=' || currChar == '%')
 		return true;
 	return false;
 }
@@ -213,7 +213,8 @@ bool FSM::isComment(char currChar) {
 
 bool FSM::isSeparator(char currChar) {
 	if (currChar == '(' || currChar == ')' || currChar == '[' || currChar == ']' ||
-		currChar == '{' || currChar == '}')
+		currChar == '{' || currChar == '}' || currChar == '.' || currChar == ',' ||
+		currChar == ':' || currChar == ';' || currChar == '\'')
 		return true;
 	return false;
 }

@@ -3,6 +3,7 @@
 int main()
 {
 	ifstream infile;
+	ofstream outfile("OutputFile.txt");
 	string str;
 	string fileName;
 	FSM T;
@@ -18,16 +19,23 @@ int main()
 
 	infile.open(fileName.c_str());
 
+	cout << left << setw(15) << "TOKENS" << "LEXEMES" << endl << endl;
+	outfile << left << setw(15) << "TOKENS" << "LEXEMES" << endl << endl;
+
 	while (!infile.eof()) {
 		getline(infile, str);
 
 		tokens = T.lexer(str);
 
 		for (int i = 0; i < tokens.size(); i++) {
-			cout << tokens[i].getToken() << "   " <<
+			cout << left << setw(12) << tokens[i].getToken() << setw(4) << "=" <<
+				tokens[i].getLexeme() << endl;
+			outfile << left << setw(12) << tokens[i].getToken() << setw(4) << "=" <<
 				tokens[i].getLexeme() << endl;
 		}
 	}
+
+	infile.close();
 
 	return 0;
 }
