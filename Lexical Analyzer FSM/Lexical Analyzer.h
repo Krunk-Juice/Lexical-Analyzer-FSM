@@ -49,6 +49,9 @@ private:
 	//string token;
 	//int lexeme;
 	string currToken;
+	int col = REJECT;
+	int currState = REJECT;
+	int prevState = REJECT;
 	Token T;
 	StateTable S;
 	int getCol(char currChar);
@@ -68,9 +71,9 @@ public:
 vector<Token> FSM::lexer(string expression) {
 	vector<Token> tokens;
 	char currChar = ' ';
-	int col = REJECT;
-	int currState = REJECT;
-	int prevState = REJECT;
+	//int col = REJECT;
+	//int currState = REJECT;
+	//int prevState = REJECT;
 	currToken = "";
 
 

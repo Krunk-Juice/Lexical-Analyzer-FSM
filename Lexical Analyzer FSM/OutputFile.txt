@@ -1,21 +1,3 @@
 TOKENS         LEXEMES
 
-KEYWORD     =   while
-SEPARATOR   =   (
-IDENTIFIER  =   fahr
-OPERATOR    =   <
-IDENTIFIER  =   upper
-SEPARATOR   =   )
-IDENTIFIER  =   a
-OPERATOR    =   =
-REAL        =   23.00
-KEYWORD     =   whileend
-IDENTIFIER  =   the
-IDENTIFIER  =   quick
-IDENTIFIER  =   brown
-IDENTIFIER  =   fox
-IDENTIFIER  =   jumps
-IDENTIFIER  =   over
-IDENTIFIER  =   the
-IDENTIFIER  =   lazy
-IDENTIFIER  =   dog
+IDENTIFIER  =   end
