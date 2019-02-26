@@ -19,7 +19,7 @@ enum TRANSITION_STATES {
 	SEPARATOR = 8,
 	DOLLAR = 9
 };
-
+								 // INPUTS
 struct StateTable {				 /* INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR */
 	int table[9][10] = { {REJECT,	INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR},
 	/* STATE 1 */		{INTEGER,   INTEGER,   REAL,      REJECT,	 REJECT,	REJECT,	   REJECT,  COMMENT,  REJECT,	 REJECT},
@@ -80,8 +80,11 @@ vector<Token> FSM::lexer(string expression) {
 	for (int i = 0; i < expression.length();) {
 		currChar = expression[i];
 
+		// What is the input?
+		// get current column/input of current character
 		col = getCol(currChar);
 
+		// get current state of expression
 		currState = S.table[currState][col];
 
 		if (currState == REJECT) {
@@ -99,10 +102,12 @@ vector<Token> FSM::lexer(string expression) {
 		// Will skip comments entirely without catching.
 		else if (currState == COMMENT)
 			i++;
+		// Catch and concat character for current token
 		else {
 			currToken += currChar;
 			i++;
 		}
+		
 		prevState = currState;
 	}
 
