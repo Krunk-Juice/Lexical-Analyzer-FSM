@@ -87,8 +87,10 @@ vector<Token> FSM::lexer(string expression) {
 		// get current state of expression
 		currState = S.table[currState][col];
 
+		// State switching mechanism
+		// Is current state starting state?
 		if (currState == REJECT) {
-			// Only add tokens and lexemes that are not SPACE or COMMENT.
+			// Only add tokens and lexemes that are not SPACE or COMMENT to container.
 			if (prevState != SPACE && prevState != COMMENT) {
 				T.setLexeme(currToken);
 				T.setToken(getTokenType(prevState));
@@ -97,6 +99,7 @@ vector<Token> FSM::lexer(string expression) {
 			// If previous state is COMMENT. We move the expression index forward.
 			if (prevState == COMMENT)
 				i++;
+			// Reset token.
 			currToken = "";
 		}
 		// Will skip comments entirely without catching.
