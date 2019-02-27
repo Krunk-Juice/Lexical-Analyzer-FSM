@@ -49,11 +49,9 @@ private:
 	//string token;
 	//int lexeme;
 	string currToken;
-	int col = REJECT;
-	int currState = REJECT;
-	int prevState = REJECT;
 	Token T;
 	StateTable S;
+	bool isPrevCom = false;
 	int getCol(char currChar);
 	string getTokenType(int lex);
 	bool isSpace(char currChar);
@@ -71,11 +69,16 @@ public:
 vector<Token> FSM::lexer(string expression) {
 	vector<Token> tokens;
 	char currChar = ' ';
-	//int col = REJECT;
-	//int currState = REJECT;
-	//int prevState = REJECT;
+	int col = REJECT;
+	int currState = REJECT;
+	int prevState = REJECT;
 	currToken = "";
 
+	// Was the previous line a comment?
+	if (isPrevCom == true) {
+		currState = COMMENT;
+		isPrevCom = false;
+	}
 
 	for (int i = 0; i < expression.length();) {
 		currChar = expression[i];
@@ -119,6 +122,9 @@ vector<Token> FSM::lexer(string expression) {
 		T.setToken(getTokenType(currState));
 		tokens.push_back(T);
 	}
+	// Handling block comments that extend onto other lines.
+	else if (currState == COMMENT)
+		isPrevCom = true;
 
 	return tokens;
 }
