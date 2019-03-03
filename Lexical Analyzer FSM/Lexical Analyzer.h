@@ -6,7 +6,7 @@
 
 using namespace std;
 
-// These are the transition states for the FSM.
+// These are the inputs for the FSM.
 enum TransitionStates {
 	REJECT = 0,				// REJECT is the starting state.
 	INTEGER = 1,
@@ -50,8 +50,6 @@ public:
 
 class FSM {
 private:
-	//string token;
-	//int lexeme;
 	string currToken;
 	Token T;
 	StateTable S;
