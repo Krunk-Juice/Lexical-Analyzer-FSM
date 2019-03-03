@@ -7,7 +7,7 @@
 using namespace std;
 
 // These are the transition states for the FSM.
-enum TRANSITION_STATES {
+enum TransitionStates {
 	REJECT = 0,				// REJECT is the starting state.
 	INTEGER = 1,
 	REAL = 2,
@@ -19,12 +19,16 @@ enum TRANSITION_STATES {
 	SEPARATOR = 8,
 	DOLLAR = 9
 };
-								 // INPUTS
-struct StateTable {				 /* INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR */
+
+class FSM;
+								 
+class StateTable {
+	friend FSM;					// INPUTS
+protected:						 /* INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR */
 	int table[9][10] = { {REJECT,	INTEGER,   REAL,      OPERATOR,  STRING,    UNKNOWN,   SPACE,   COMMENT,  SEPARATOR, DOLLAR},
 	/* STATE 1 */		{INTEGER,   INTEGER,   REAL,      REJECT,	 REJECT,	REJECT,	   REJECT,  COMMENT,  REJECT,	 REJECT},
 	/* STATE 2 */		{REAL,      REAL,      UNKNOWN,   REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT,  REJECT,	 REJECT},
-	/* STATE 3 */		{OPERATOR,  REJECT,	   REJECT,	  REJECT,	 STRING,    REJECT,    REJECT,  COMMENT,  REJECT,	 REJECT},
+	/* STATE 3 */		{OPERATOR,  REJECT,	   REJECT,	  REJECT,	 REJECT,    REJECT,    REJECT,  COMMENT,  REJECT,	 REJECT},
 	/* STATE 4 */		{STRING,    STRING,    REJECT,	  REJECT,    STRING,    REJECT,    REJECT,  COMMENT,  REJECT,	 STRING},
 	/* STATE 5 */		{UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   UNKNOWN,   REJECT,  COMMENT,  REJECT,	 REJECT},
 	/* STATE 6 */		{SPACE,     REJECT,	   REJECT,	  REJECT,	 REJECT,	REJECT,    REJECT,  COMMENT,  REJECT,	 REJECT},
