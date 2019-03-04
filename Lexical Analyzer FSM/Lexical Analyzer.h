@@ -8,7 +8,7 @@ using namespace std;
 
 // These are the inputs for the FSM.
 enum TransitionStates {
-	REJECT = 0,				// REJECT is the starting state.
+	REJECT = 0,				// REJECT is the starting state and final state.
 	INTEGER = 1,
 	REAL = 2,
 	OPERATOR = 3,
