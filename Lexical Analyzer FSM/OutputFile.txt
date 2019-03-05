@@ -1,3 +1,17 @@
 TOKENS         LEXEMES
 
-IDENTIFIER  =   end
+KEYWORD     =   int
+IDENTIFIER  =   x
+OPERATOR    =   =
+INTEGER     =   5
+SEPARATOR   =   ;
+IDENTIFIER  =   x
+OPERATOR    =   =
+IDENTIFIER  =   x
+UNKNOWN     =   ^2
+SEPARATOR   =   ;
+KEYWORD     =   float
+IDENTIFIER  =   y
+OPERATOR    =   =
+UNKNOWN     =   91.13.75
+SEPARATOR   =   ;
